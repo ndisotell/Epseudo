@@ -1,0 +1,193 @@
+---
+title: "<center>Are neighbors pillaging nests: detecting spatial complexity of allopaternal care in the imperiled Egg-mimic Darter (Percidae: Etheostoma pseudovulatum)</center>"
+author: "<center>N. Disotell</center>"
+output: 
+  html_document:
+    theme: united
+    toc: true
+    toc_float: true
+---
+<center>![](EPS.jpg)</center>
+<h2><b>Github link</b></h2> 
+http://ndisotell.github.io/E-pseudo
+```{r setup, include=FALSE}
+library(tidyverse) #importing, tidying, plotting data
+library(leaflet)#making maps 
+library(ggplot2)#creating figures
+library(colorspace)
+library(dplyr)
+library(kableExtra)
+library(readxl)
+library(leaflet)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<h1><b>Abstract</b></h1>
+Alloparental care behavior has been documented in several clades of animals, including fishes. Despite the increased energy cost of caring for more offspring, this behavior of raising non-descendent young also has potential benefits, including attraction of mates or reduced egg predation by dilution effects. The Egg-mimic Darter, Etheostoma pseudovulatum, is an imperiled darter species restricted to only five tributaries of the Duck river where they occur in rocky pools of small to medium-sized streams. Male Egg-mimic Darters and those of other species of clade Goneaperca construct nests under rocks and guard eggs until hatched. Two species from this clade, E. virgatum and E. olmstedi, exhibit allopaternal care; whether this is a common strategy to all members of the clade is not known. Furthermore, the potential benefits of kin-selection and how nest density or male size influences such behaviors have not been tested.
+
+We will use microsatellite loci to obtain genotypes from the eggs, collected at the same locality from 2015 and 2019, of 17 and 21 nests respectively. Other non-guarding males and females from both collection events have also been captured to identify the following: (1) if allopaternal care occurs in this species, (2) if kin-selection is one benefit of allopaternal care, (3) if male size correlates to the proportion of non-descendant eggs in a nest, and (4) if distance between nests influences allopaternal care frequency.
+
+To date, eggs from 38 nests, the guarding male for each, and 19 other non-guarding males have been collected from both years. DNA was extracted from non-target individuals from a second location and used as a template to optimize primers for 18 microsatellite loci that were variable within the focal taxon. The preliminary genotypic data has been generated for 4 of the 18 loci of the focal individuals from the year 2019 and subjected to parentage analyses using COLONY (V2.0) to address our objectives.
+
+<h1>Photos of Mill creek site</h1>
+   ![The bridge showing the most downstream portion of the site.](mill3.jpg)
+  
+  
+  ![A photo showing the most upstream portion of site](mill4.jpg)
+  
+<h1>Videos of behavior</h1>
+<!-- blank line -->
+<figure class="video_container">
+  <iframe width="600" height="400" src="https://www.youtube.com/embed/TeiIJ5Y0ds0" frameborder="0" allowfullscreen="true"> </iframe>
+</figure>
+
+<figure class="video_container">
+  <iframe width="600" height="400" src="https://www.youtube.com/embed/7k9_tJnUtHg" frameborder="0" allowfullscreen="true"> </iframe>
+</figure>
+
+<figure class="video_container">
+  <iframe width="600" height="400" src="https://www.youtube.com/embed/QxW4UzJwaTM" frameborder="0" allowfullscreen="true"> </iframe>
+</figure>
+<!-- blank line -->
+
+<h2> Map of Mill Creek</h2>
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+state <- map_data("state")
+county <- map_data("county")
+mill_ck <- data.frame("x" = -87.35056, "y" = 35.89307)
+
+tn <- county %>% 
+  filter(region=="tennessee")
+
+hickco <- county %>% 
+  filter(region=="tennessee") %>% 
+  filter(subregion=="hickman")
+
+ggplot() + geom_polygon(data = state, aes(x=long, y = lat, group = group),
+                        fill = "white", color="black") + 
+           geom_polygon(data = tn, aes(x=long, y = lat, group = group),
+                        fill = "gray", color="black") + 
+           geom_polygon(data = hickco, aes(x=long, y = lat, group = group),
+                        fill = "red", color="black") + 
+           geom_point(data = mill_ck, aes(x=x,y=y), color="black") +
+  coord_fixed(xlim = c(-91, -81),  ylim = c(34, 37), ratio = 1.2) + 
+  xlab("Longitude") + ylab("Latitude") + ggtitle("Mill Ck, Hickman Co., TN")
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+leaflet() %>%
+  setView(-87.35056, 35.89307, zoom = 16) %>% #lat-long of the place of interest
+  addTiles() %>%
+  addMarkers(-87.35056, 35.89307, popup = "Mill Ck")
+```
+
+
+<h2> Natural History Information </h2>
+
+<span style="color:#00e7f3">Firstt, a *boxplot* of male total lengths from both years. Comparing the two the average means are still in fact close together.</span>
+
+```{r Plot Year by Male TL, echo=FALSE, message=FALSE, warning=FALSE}
+JMIH_R_Tables <- read_excel("JMIH R Tables.xlsx", 
+                            sheet = "Avg. guarding male length", 
+                            col_types = c("text", "numeric"))
+ggplot(JMIH_R_Tables,
+       aes(x = Year, y = MaleTL)) +
+  geom_point() +
+  ylab("Male Total Length (mm)") +
+  theme_bw()
+
+ggplot(JMIH_R_Tables, aes(x=Year, y=MaleTL)) + geom_boxplot() + theme_classic(base_size = 14) + ylab("Male TL (mm)") + aes(fill= Year) + scale_fill_manual(values=c("#3E9DD1", "#E5A859"), guide=FALSE) + scale_y_continuous(breaks=seq(60, 95, 5)) + theme(axis.text.x = element_text(colour = 'black',  size = 12, face = 'bold')) + theme(axis.text.y = element_text(colour='black', size=12, face="bold")) + theme(axis.text.x = element_text(face="bold", color="black", size=12),axis.text.y = element_text(face="bold", color="black",size=12)) +theme(axis.text=element_text(size=12),axis.title=element_text(size=12,face="bold"))
+
+```
+
+<span style="color:blue">Now, a comparison of the average number of clutches in a nest compared by collection year.</span>
+
+```{r Clutch size by Year, echo=FALSE, message=FALSE, warning=FALSE}
+JMIH_R_Tables <- read_excel("JMIH R Tables.xlsx", 
+                            sheet = "Avg. Clutch size", col_types = c("text", 
+                                                                      "numeric"))
+B <- table(JMIH_R_Tables$Year, JMIH_R_Tables$ClutchSize)
+C <- as.data.frame(B)
+
+colnames(C)
+names(C)[names(C) == "Var1"] <- "Year"
+names(C)[names(C) == "Var2"] <- "ClutchSize"
+names(C)[names(C) == "Freq"] <- "Total_number"
+C
+
+legend_title <- "Clutch Size"
+ggplot(C, aes(x = Year, y =Total_number, ylab="Frequency", fill=ClutchSize)) + geom_histogram(stat = "identity", position = 'dodge', binwidth = 5) + 
+  theme_classic() + scale_fill_manual("Clutch Size", values = c("1"="#3E9DD1", "2"="#E5A859", "3"="#A57296")) + labs(x="Year",y="Frequency of Clutch Size") + 
+  theme(axis.line = element_line(colour = "black"),axis.text.x = element_text(face="bold", color="black", size=12),axis.text.y = element_text(face="bold", color="black", size=12)) + 
+  scale_y_continuous(breaks=seq(0, 20, 2)) + theme(axis.text.x = element_text(face="bold", color="black", size=12),axis.text.y = element_text(face="bold", color="black",size=12)) +
+  theme(axis.title.x = element_text(size = 12, face = "bold"), axis.title.y = element_text(size = 12,face = "bold")) +theme(legend.text=element_text(size=10, face = "bold"), legend.title=element_text(size=12, face="bold"))
+                                                       
+```
+
+<span style="color:#00cf00">Now for some summary tables to give a different depiction.</span>
+
+```{r Male TL, echo=FALSE, warning=TRUE}
+JMIH_R_Tables <- read_excel("JMIH R Tables.xlsx", 
+                            sheet = "Avg. guarding male length", 
+                            col_types = c("text", "numeric"))
+JMIH_R_Tables %>% group_by(Year) %>%
+  summarise(meanMaleTL = mean(MaleTL))
+
+males<-JMIH_R_Tables %>%
+  group_by (Year) %>%
+  summarise(
+    nMaleTL = n(),
+    meanMaleTL = mean(MaleTL),
+    sdMaleTL = sd(MaleTL))
+kable(males, format = "pandoc", caption = 'Table 2. A summary kable displaying number, mean, and standard deviation for both years.')
+```
+
+```{r Year clutches, echo=FALSE}
+JMIH_R_Tables <- read_excel("JMIH R Tables.xlsx", 
+                            sheet = "Avg. Clutch size", col_types = c("text", 
+                                                                      "numeric"))
+clutches<-JMIH_R_Tables %>%
+  group_by (Year) %>%
+  summarise(
+    n = n(),
+    meanClutchSize = mean(ClutchSize),
+    sdClutchSize = sd(ClutchSize))
+kable(clutches, format = "pandoc", caption = 'Table 2. A summary kable displaying number, mean, and standard deviation for clutch size by year.')
+```
+
+<span style="color:#f57a00">And for funsies I ran an anova to try and see if there was any noticable correlation between t he size of the male and how many eggs were in the guarded nest.</span>
+
+```{r Male Eggs, echo=FALSE}
+MIH_R_Tables <- read_excel("JMIH R Tables.xlsx", 
+                            sheet = "Number of Eggs to male size", 
+                            col_types = c("skip", "numeric", "numeric"))
+
+MaleEgg_lm <- lm(TotalEggs ~ MaleSize, data=MIH_R_Tables)
+anova(MaleEgg_lm)
+```
+
+<h1>Preliminary Results</h1>
+
+For Nest 5 clutch A here is a figure depicting the number of mismatched loci as compared to the present guarding and non guarding males. Males 26-01 and 10-02 appear to be the probable father for this first clutch. However, the known guarding male was M14-01.
+
+![Clutch A](PlotA.jpeg)
+
+Here in the second figure for Nest 5 clutch B we see that the known guarding male, M14-01, falls closer to the lower portion of the plot making it's likelihood of being that particular parent higher than we saw in Clutch A. With more loci and more information there is a high likelihood of resolution that the first clutch is not the guarding males but the second is more genetically related.
+
+![Clutch B](PlotB.jpeg)
+
+<h3><b>References</b></h3>
+1. McKaye, K. R. (1981). Natural selection and the evolution of interspecific brood care in fishes. In: Alexander, R. D. and Tinkle, D. W. (eds) Natural Selection of Social Behaviour. New York: Chiron Press. pp. 173-183.
+2. Unger, L. M., and Sargent, R. C. (1988). Allopaternal care in the Fathead Minnow, Pimephales promelas: females prefer males with eggs. Behavioral Ecology and Sociobiology, 23(1), 27–32. 
+3. Near, T. J., Bossu, C. M., Bradburd, et. al.  (2011). Phylogeny and temporal diversification of darters (Percidae: Etheostomatinae). Systematic Biology, 60(5), 565-595. 
+4. Constantz, G. D. (1985). Allopaternal care in the Tessellated Darter, Etheostoma olmstedi (Pisces: Percidae). Environmental Biology of Fishes, 14, 175–183.
+5. Porter, B. A., Fiumera, A. C., and Avise, J. C. (2002). Egg mimicry and allopaternal care: two mate-attracting tactics by which nesting Striped Darter (Etheostoma virgatum) males enhance reproductive success. Behavioral Ecology and Sociobiology, 51(4), 350–359.
+6. Gabel, J. M., Dakin, E. E., Freeman, B. J., and Porter, B. A. (2008). Isolation and identification of eight microsatellite loci in the Cherokee Darter (Etheostoma scotti) and their variability in other members of the genera Etheostoma, Ammocrypta, and Percina. Molecular Ecology Resource, 8, 149-151.
+7. Khudamrongsawat, J., Heath, L. S., Heath, H. E., and Harris, P. M. (2007). Microsatellite DNA primers for the endangered Vermilion Darter, Etheostoma chermocki, and cross-species amplification in other darters (Percidae: Etheostoma). Molecular Ecology Notes, 7(5), 811–813. 
+8. Switzer, J. F., Welsh, S. A, and King, T. L. (2008). Microsatellite DNA primers for the Candy Darter, Etheostoma osburni, and Variegate Darter, Etheostoma variatum, and cross-species amplification in other darters (Percidae). Molecular Ecology Resources, 8(2), 335–338.
+9. Tonnis, B. D. (2006). Microsatellite DNA markers for the Rainbow Darter, Etheostoma caeruleum (Percidae), and their potential utility for other darter species. Molecular Ecology Notes, 6(1), 230–232. 
+10.. Piller, K., and Burr, B. (1998). Reproductive biology and spawning habitat supplementation of the relict darter, Etheostoma chienense, a federally endangered species. Environmental Biology of Fishes, 55, 145-155. 
+11. Page, Lawrence M. Handbook of Darters. 1st ed., TFH Publications, 1983.
+12. Ceas, P., and Page, L. (1995). Status surveys of Crown Darter (E. corona) and Lollypop darter (E. neopterum) in Cypress Creek and Shoal Creek systems of TN and AL, and Egg-Mimic Darter (E. pseudovulatum) in Duck river system of TN. Illinois Natural History Survey Technical Report
+
